@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ app_name }}</title>
+  <style>
+    :root {
+      --bg-body: #f8f9fa;
+      --bg-section: #fff;
+      --bg-section-header: #f8fafc;
+      --bg-btn-hover: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-heading: #0f172a;
+      --text-secondary: #64748b;
+      --text-meta: #94a3b8;
+      --text-btn-hover: #334155;
+      --badge-bg: #e2e8f0;
+      --badge-text: #475569;
+      --border: #e2e8f0;
+      --border-row: #f1f5f9;
+      --border-btn: #cbd5e1;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-body: #0f172a;
+        --bg-section: #1e293b;
+        --bg-section-header: #1a2332;
+        --bg-btn-hover: #334155;
+        --text-primary: #e2e8f0;
+        --text-heading: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-meta: #64748b;
+        --text-btn-hover: #e2e8f0;
+        --badge-bg: #334155;
+        --badge-text: #94a3b8;
+        --border: #334155;
+        --border-row: #293548;
+        --border-btn: #475569;
+      }
+    }
+    [data-theme="dark"] {
+      --bg-body: #0f172a;
+      --bg-section: #1e293b;
+      --bg-section-header: #1a2332;
+      --bg-btn-hover: #334155;
+      --text-primary: #e2e8f0;
+      --text-heading: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-meta: #64748b;
+      --text-btn-hover: #e2e8f0;
+      --badge-bg: #334155;
+      --badge-text: #94a3b8;
+      --border: #334155;
+      --border-row: #293548;
+      --border-btn: #475569;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; color: var(--text-heading); }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .theme-switch {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .theme-switch-icon { font-size: 0.85rem; line-height: 1; }
+    .theme-switch-track {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: var(--border-btn);
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .theme-switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: var(--bg-section);
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .theme-switch.dark .theme-switch-track { background: var(--badge-bg); }
+    .theme-switch.dark .theme-switch-thumb { transform: translateX(16px); }
+    .section {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      background: var(--bg-section-header);
+      border-bottom: 1px solid var(--border);
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-row);
+    }
+    .row:last-child { border-bottom: none; }
+    .row-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+    }
+    .row-value {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+      text-align: right;
+      word-break: break-all;
+      max-width: 60%;
+    }
+    .secret-value { display: flex; align-items: center; gap: 0.5rem; }
+    .toggle-btn {
+      background: none;
+      border: 1px solid var(--border-btn);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .toggle-btn:hover { background: var(--bg-btn-hover); color: var(--text-btn-hover); }
+    .meta {
+      font-size: 0.75rem;
+      color: var(--text-meta);
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>{{ app_name }}</h1>
+      <span class="badge">{{ environment }}</span>
+      <div class="theme-switch" id="theme-switch" onclick="window.toggleTheme()">
+        <span class="theme-switch-icon">&#9728;&#65039;</span>
+        <div class="theme-switch-track"><div class="theme-switch-thumb"></div></div>
+        <span class="theme-switch-icon">&#127761;</span>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="section-header">ConfigMap Values</div>
+      <div class="row">
+        <span class="row-label">APP_NAME</span>
+        <span class="row-value">{{ app_name }}</span>
+      </div>
+      <div class="row">
+        <span class="row-label">ENVIRONMENT</span>
+        <span class="row-value">{{ environment }}</span>
+      </div>
+      <div class="row">
+        <span class="row-label">LOG_LEVEL</span>
+        <span class="row-value">{{ log_level }}</span>
+      </div>
+      <div class="row">
+        <span class="row-label">FEATURE_FLAGS</span>
+        <span class="row-value">{{ feature_flags }}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">Secret Values</div>
+      <div class="row">
+        <span class="row-label">DATABASE_URL</span>
+        <span class="row-value secret-value">
+          <span class="masked" id="db-masked">*******</span>
+          <span class="revealed" id="db-revealed" style="display:none">{{ database_url }}</span>
+          <button class="toggle-btn" onclick="toggle('db')">show</button>
+        </span>
+      </div>
+      <div class="row">
+        <span class="row-label">API_KEY</span>
+        <span class="row-value secret-value">
+          <span class="masked" id="api-masked">*******</span>
+          <span class="revealed" id="api-revealed" style="display:none">{{ api_key }}</span>
+          <button class="toggle-btn" onclick="toggle('api')">show</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">Pod Info</div>
+      <div class="row">
+        <span class="row-label">HOSTNAME</span>
+        <span class="row-value">{{ hostname }}</span>
+      </div>
+      <div class="row">
+        <span class="row-label">STARTUP_TIME</span>
+        <span class="row-value">{{ startup_time }}</span>
+      </div>
+    </div>
+
+    <div class="meta">config-reload-demo — pods auto-restart on config or secret change</div>
+  </div>
+
+  <script>
+    function toggle(id) {
+      var m = document.getElementById(id + '-masked');
+      var r = document.getElementById(id + '-revealed');
+      var btn = m.parentElement.querySelector('.toggle-btn');
+      var showing = r.style.display === 'none';
+      m.style.display = showing ? 'none' : 'inline';
+      r.style.display = showing ? 'inline' : 'none';
+      btn.textContent = showing ? 'hide' : 'show';
+    }
+
+    (function() {
+      var sw = document.getElementById('theme-switch');
+      var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      function isDark() {
+        var saved = localStorage.getItem('theme');
+        if (saved) return saved === 'dark';
+        return darkQuery.matches;
+      }
+
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        sw.classList.toggle('dark', theme === 'dark');
+      }
+
+      var saved = localStorage.getItem('theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      sw.classList.toggle('dark', isDark());
+
+      darkQuery.addEventListener('change', function(e) {
+        if (!localStorage.getItem('theme')) {
+          sw.classList.toggle('dark', e.matches);
+        }
+      });
+
+      window.toggleTheme = function() {
+        applyTheme(isDark() ? 'light' : 'dark');
+      };
+    })();
+  </script>
+</body>
+</html>
