@@ -1,6 +1,5 @@
 mode: ContinuousDelivery
 tag-prefix: '[vV]?'
-continuous-delivery-fallback-label: ''
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
