@@ -1,0 +1,6 @@
+apiVersion: v2
+name: config-reload-demo
+description: A demo app showing Helm automatic deployment rolling via checksum annotations
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

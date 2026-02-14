@@ -1,0 +1,17 @@
+[package]
+name = "config-reload-demo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+askama = "0.14"
+askama_web = { version = "0.14", features = ["axum-0.8"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"

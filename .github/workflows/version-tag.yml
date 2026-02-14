@@ -1,0 +1,57 @@
+name: Version Tag
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.2.0
+        with:
+          versionSpec: '6.4.x'
+
+      - name: Execute GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.2.0
+
+      - name: Create tag
+        uses: actions/github-script@v7
+        env:
+          SEMVER: ${{ steps.gitversion.outputs.semVer }}
+        with:
+          script: |
+            const tag = `v${process.env.SEMVER}`;
+            const ref = `refs/tags/${tag}`;
+
+            // Check if tag already exists
+            try {
+              await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${tag}`,
+              });
+              console.log(`Tag ${tag} already exists, skipping.`);
+              return;
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+
+            // Create the tag
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: ref,
+              sha: context.sha,
+            });
+            console.log(`Created tag ${tag}`);

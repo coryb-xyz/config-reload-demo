@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["replicaCount", "image", "config", "secrets", "service"],
+  "additionalProperties": false,
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of pod replicas"
+    },
+    "image": {
+      "type": "object",
+      "required": ["repository", "tag", "pullPolicy"],
+      "additionalProperties": false,
+      "description": "Container image configuration",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Container image repository"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Container image tag"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "description": "Image pull policy"
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "required": ["appName", "environment", "logLevel", "featureFlags"],
+      "additionalProperties": false,
+      "description": "ConfigMap values (non-sensitive)",
+      "properties": {
+        "appName": {
+          "type": "string",
+          "description": "Display name shown on the page"
+        },
+        "environment": {
+          "type": "string",
+          "description": "Target environment label"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "description": "Logging verbosity level"
+        },
+        "featureFlags": {
+          "type": "string",
+          "description": "Comma-separated feature flags"
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "required": ["create"],
+      "additionalProperties": false,
+      "description": "Secret values (sensitive)",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Whether to create the Secret resource from chart values"
+        },
+        "databaseUrl": {
+          "type": "string",
+          "description": "Database connection string"
+        },
+        "apiKey": {
+          "type": "string",
+          "description": "External API key"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "required": ["type", "port", "targetPort"],
+      "additionalProperties": false,
+      "description": "Kubernetes Service configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "description": "Service type"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Service port"
+        },
+        "targetPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Container target port"
+        }
+      }
+    }
+  }
+}
