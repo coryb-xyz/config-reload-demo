@@ -184,4 +184,3 @@ See [HelmRelease `valuesFrom`](https://fluxcd.io/flux/components/helm/helmreleas
 - [Automatically Roll Deployments](https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments) -- the core pattern this project demonstrates
 - [Schema Files](https://helm.sh/docs/topics/charts/#schema-files) -- values validation via JSON Schema
 - [Helm OCI Support](https://helm.sh/docs/topics/registries/) -- the chart is published as an OCI artifact to GHCR
-
