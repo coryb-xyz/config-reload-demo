@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["replicaCount", "image", "config", "secrets", "service"],
+  "required": ["replicaCount", "image", "config", "secrets", "resources", "service"],
   "additionalProperties": false,
   "properties": {
     "replicaCount": {
@@ -72,6 +72,46 @@
         "apiKey": {
           "type": "string",
           "description": "External API key"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "required": ["requests", "limits"],
+      "additionalProperties": false,
+      "description": "Container resource requests and limits",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "required": ["cpu", "memory"],
+          "additionalProperties": false,
+          "description": "Resource requests",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU request (e.g., 10m, 100m, 1)"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request (e.g., 16Mi, 128Mi, 1Gi)"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "required": ["cpu", "memory"],
+          "additionalProperties": false,
+          "description": "Resource limits",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit (e.g., 50m, 500m, 2)"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit (e.g., 32Mi, 256Mi, 2Gi)"
+            }
+          }
         }
       }
     },

@@ -42,8 +42,8 @@ spec:
             periodSeconds: 5
           resources:
             requests:
-              cpu: 10m
-              memory: 16Mi
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
             limits:
-              cpu: 50m
-              memory: 32Mi
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
