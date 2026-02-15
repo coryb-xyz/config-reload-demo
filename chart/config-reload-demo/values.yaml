@@ -16,6 +16,14 @@ secrets:
   databaseUrl: "postgres://demo:demo@localhost:5432/demo"
   apiKey: "sk-demo-000000"
 
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    cpu: 50m
+    memory: 32Mi
+
 service:
   type: ClusterIP
   port: 80
