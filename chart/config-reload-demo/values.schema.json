@@ -4,6 +4,14 @@
   "required": ["replicaCount", "image", "config", "secrets", "resources", "service"],
   "additionalProperties": false,
   "properties": {
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the chart name used in resource names"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the full resource name (replaces release-name + chart-name)"
+    },
     "replicaCount": {
       "type": "integer",
       "minimum": 1,

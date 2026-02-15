@@ -64,6 +64,48 @@ diff \
   <(helm template rel chart/config-reload-demo/ --set config.logLevel=debug)
 ```
 
+### Resource Naming
+
+By default, the chart uses a standard Helm naming convention: `{release-name}-{chart-name}`. If the release name already contains the chart name, it avoids duplication.
+
+You can control resource names with two values:
+
+| Value | Effect |
+|---|---|
+| `nameOverride` | Replaces the chart name portion (affects the `app.kubernetes.io/name` label and the fallback in fullname) |
+| `fullnameOverride` | Replaces the entire computed resource name directly |
+
+**Examples:**
+
+```bash
+# Default: release name = "my-release"
+# Resources are named: my-release-config-reload-demo
+helm install my-release chart/config-reload-demo/
+
+# Release name matches chart name -- deduplication kicks in
+# Resources are named: config-reload-demo (not config-reload-demo-config-reload-demo)
+helm install config-reload-demo chart/config-reload-demo/
+
+# fullnameOverride: all resources use exactly this name
+# Resources are named: my-app
+helm install whatever chart/config-reload-demo/ --set fullnameOverride=my-app
+
+# nameOverride: replaces the chart name portion
+# Resources are named: my-release-my-app
+helm install my-release chart/config-reload-demo/ --set nameOverride=my-app
+```
+
+For a concrete example, `helm install my-release chart/config-reload-demo/ --set fullnameOverride=demo` creates:
+
+| Kind | Name |
+|---|---|
+| Deployment | `demo` |
+| Service | `demo` |
+| ConfigMap | `demo` |
+| Secret | `demo` |
+
+All resources share the same fullname, which is how they reference each other (e.g., the Deployment's `envFrom` points to the ConfigMap and Secret by this name).
+
 ### Values Schema
 
 The chart includes a `values.schema.json` that validates values on `helm install`, `helm upgrade`, `helm lint`, and `helm template`. This catches misconfiguration early -- before anything reaches a cluster.
