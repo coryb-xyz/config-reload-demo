@@ -12,7 +12,7 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      semver: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      semver: ${{ steps.calc.outputs.version }}
       created: ${{ steps.tag.outputs.created }}
     steps:
       - name: Checkout
@@ -20,20 +20,66 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.2.0
-        with:
-          versionSpec: '6.4.x'
+      - name: Calculate version
+        id: calc
+        run: |
+          # Find the latest semver tag (vX.Y.Z only, no pre-release)
+          LATEST_TAG=$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | head -n1)
 
-      - name: Execute GitVersion
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v4.2.0
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No semver tag found, starting at 0.1.0"
+            LATEST_TAG="v0.0.0"
+            RANGE="HEAD"
+          else
+            echo "Latest tag: $LATEST_TAG"
+            RANGE="${LATEST_TAG}..HEAD"
+          fi
+
+          # Parse current version
+          VERSION="${LATEST_TAG#v}"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+          # Scan commit messages for +semver: directives
+          BUMP="patch"
+          while IFS= read -r msg; do
+            if echo "$msg" | grep -qiE '\+semver:\s*(breaking|major)'; then
+              BUMP="major"
+              break
+            elif echo "$msg" | grep -qiE '\+semver:\s*(feature|minor)'; then
+              BUMP="minor"
+            fi
+          done < <(git log --format=%B "$RANGE")
+
+          # Apply bump
+          case "$BUMP" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "Bump type: $BUMP"
+          echo "New version: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create tag
         id: tag
         uses: actions/github-script@v7
         env:
-          SEMVER: ${{ steps.gitversion.outputs.semVer }}
+          SEMVER: ${{ steps.calc.outputs.version }}
         with:
           script: |
             const tag = `v${process.env.SEMVER}`;
