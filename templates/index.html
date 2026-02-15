@@ -177,22 +177,34 @@
       from { opacity: 1; transform: translateY(0); }
       to { opacity: 0; transform: translateY(1rem); }
     }
-    .toast {
+    .toast-anchor {
       display: none;
       position: fixed;
       bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1e3a5f;
-      color: #e0ecf8;
-      border: 1px solid #2d5a8a;
+      left: 0;
+      right: 0;
+      justify-content: center;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast-anchor.visible { display: flex; }
+    .toast {
+      background: #dbeafe;
+      color: #1e3a5f;
+      border: 1px solid #93c5fd;
       border-radius: 8px;
       padding: 0.75rem 1.25rem;
       font-size: 0.85rem;
       font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-      z-index: 1000;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
       white-space: nowrap;
+      pointer-events: auto;
+    }
+    [data-theme="light"] .toast {
+      background: #dbeafe;
+      color: #1e3a5f;
+      border-color: #93c5fd;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
     [data-theme="dark"] .toast {
       background: #1a3350;
@@ -206,11 +218,10 @@
         border-color: #2a4f75;
       }
     }
-    .toast.visible {
-      display: block;
+    .toast-anchor.visible .toast {
       animation: toast-in 0.3s ease-out;
     }
-    .toast.fade-out {
+    .toast-anchor.fade-out .toast {
       animation: toast-out 0.4s ease-in forwards;
     }
   </style>
@@ -282,7 +293,7 @@
     <div class="meta">config-reload-demo — pods auto-restart on config or secret change</div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast-anchor" id="toast-anchor"><div class="toast" id="toast"></div></div>
 
   <script>
     function toggle(id) {
@@ -329,12 +340,13 @@
     })();
 
     function showToast(msg, onDone) {
+      var anchor = document.getElementById('toast-anchor');
       var el = document.getElementById('toast');
       el.textContent = msg;
-      el.classList.remove('fade-out');
-      el.classList.add('visible');
+      anchor.classList.remove('fade-out');
+      anchor.classList.add('visible');
       setTimeout(function() {
-        el.classList.add('fade-out');
+        anchor.classList.add('fade-out');
         el.addEventListener('animationend', function handler() {
           el.removeEventListener('animationend', handler);
           if (onDone) onDone();
