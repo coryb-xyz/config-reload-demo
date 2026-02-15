@@ -90,6 +90,10 @@ async fn healthz() -> (StatusCode, &'static str) {
     (StatusCode::OK, "ok")
 }
 
+async fn identity(State(config): State<Arc<Config>>) -> String {
+    format!("{}\n{}", config.hostname, config.startup_time)
+}
+
 #[tokio::main]
 async fn main() {
     let config = Arc::new(Config {
@@ -106,6 +110,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(index))
         .route("/healthz", get(healthz))
+        .route("/identity", get(identity))
         .with_state(config);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
