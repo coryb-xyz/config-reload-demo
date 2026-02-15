@@ -281,6 +281,15 @@
         applyTheme(isDark() ? 'light' : 'dark');
       };
     })();
+
+    (function() {
+      var initialIdentity = "{{ hostname }}\n{{ startup_time }}";
+      setInterval(function() {
+        fetch("/identity").then(function(r) { return r.text(); }).then(function(data) {
+          if (data !== initialIdentity) location.reload();
+        }).catch(function() {});
+      }, 3000);
+    })();
   </script>
 </body>
 </html>
