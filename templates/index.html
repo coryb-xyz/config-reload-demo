@@ -169,6 +169,58 @@
       text-align: center;
       margin-top: 1rem;
     }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(1rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(1rem); }
+    }
+    .toast-anchor {
+      display: none;
+      position: fixed;
+      bottom: 2rem;
+      left: 0;
+      right: 0;
+      justify-content: center;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast-anchor.visible { display: flex; }
+    .toast {
+      --toast-bg: #dbeafe;
+      --toast-text: #1e3a5f;
+      --toast-border: #93c5fd;
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      border: 1px solid var(--toast-border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+    [data-theme="dark"] .toast {
+      --toast-bg: #1a3350;
+      --toast-text: #a8cceb;
+      --toast-border: #2a4f75;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .toast {
+        --toast-bg: #1a3350;
+        --toast-text: #a8cceb;
+        --toast-border: #2a4f75;
+      }
+    }
+    .toast-anchor.visible .toast {
+      animation: toast-in 0.3s ease-out;
+    }
+    .toast-anchor.fade-out .toast {
+      animation: toast-out 0.4s ease-in forwards;
+    }
   </style>
 </head>
 <body>
@@ -238,6 +290,8 @@
     <div class="meta">config-reload-demo — pods auto-restart on config or secret change</div>
   </div>
 
+  <div class="toast-anchor" id="toast-anchor"><div class="toast" id="toast"></div></div>
+
   <script>
     function toggle(id) {
       var m = document.getElementById(id + '-masked');
@@ -282,11 +336,32 @@
       };
     })();
 
+    function showToast(msg, onDone) {
+      var anchor = document.getElementById('toast-anchor');
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      anchor.className = 'toast-anchor visible';
+      setTimeout(function() {
+        anchor.classList.add('fade-out');
+        toast.addEventListener('animationend', function handler() {
+          toast.removeEventListener('animationend', handler);
+          anchor.className = 'toast-anchor';
+          if (onDone) onDone();
+        });
+      }, 1500);
+    }
+
     (function() {
       var initialIdentity = "{{ hostname }}\n{{ startup_time }}";
-      setInterval(function() {
+      var poll = setInterval(function() {
         fetch("/identity").then(function(r) { return r.text(); }).then(function(data) {
-          if (data !== initialIdentity) location.reload();
+          if (data !== initialIdentity) {
+            clearInterval(poll);
+            var newHostname = data.split("\n")[0];
+            showToast("New pod '" + newHostname + "' scheduled", function() {
+              location.reload();
+            });
+          }
         }).catch(function() {});
       }, 3000);
     })();
