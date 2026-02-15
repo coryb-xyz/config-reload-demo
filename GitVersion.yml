@@ -1,4 +1,4 @@
-mode: Mainline
+mode: ContinuousDelivery
 tag-prefix: '[vV]?'
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
