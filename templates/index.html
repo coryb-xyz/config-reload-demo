@@ -169,6 +169,50 @@
       text-align: center;
       margin-top: 1rem;
     }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(1rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(1rem); }
+    }
+    .toast {
+      display: none;
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e3a5f;
+      color: #e0ecf8;
+      border: 1px solid #2d5a8a;
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.85rem;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .toast {
+      background: #1a3350;
+      color: #a8cceb;
+      border-color: #2a4f75;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .toast {
+        background: #1a3350;
+        color: #a8cceb;
+        border-color: #2a4f75;
+      }
+    }
+    .toast.visible {
+      display: block;
+      animation: toast-in 0.3s ease-out;
+    }
+    .toast.fade-out {
+      animation: toast-out 0.4s ease-in forwards;
+    }
   </style>
 </head>
 <body>
@@ -238,6 +282,8 @@
     <div class="meta">config-reload-demo — pods auto-restart on config or secret change</div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
     function toggle(id) {
       var m = document.getElementById(id + '-masked');
@@ -282,11 +328,31 @@
       };
     })();
 
+    function showToast(msg, onDone) {
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('fade-out');
+      el.classList.add('visible');
+      setTimeout(function() {
+        el.classList.add('fade-out');
+        el.addEventListener('animationend', function handler() {
+          el.removeEventListener('animationend', handler);
+          if (onDone) onDone();
+        });
+      }, 1500);
+    }
+
     (function() {
       var initialIdentity = "{{ hostname }}\n{{ startup_time }}";
-      setInterval(function() {
+      var poll = setInterval(function() {
         fetch("/identity").then(function(r) { return r.text(); }).then(function(data) {
-          if (data !== initialIdentity) location.reload();
+          if (data !== initialIdentity) {
+            clearInterval(poll);
+            var newHostname = data.split("\n")[0];
+            showToast("New pod '" + newHostname + "' scheduled", function() {
+              location.reload();
+            });
+          }
         }).catch(function() {});
       }, 3000);
     })();
